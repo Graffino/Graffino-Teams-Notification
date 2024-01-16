@@ -13,6 +13,7 @@ type Job = {
   status: JobStatus
 }
 
+const DEFAULT_TIMEOUT = 5000
 const escapeMarkdownTokens = (text: string) =>
   text
     .replace(/\n\ {1,}/g, '\n ')
@@ -38,12 +39,26 @@ const basicConfig = {
   }
 }
 
+class TimeoutError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'TimeoutError'
+  }
+}
+
 async function run(): Promise<void> {
   try {
     const githubToken = core.getInput('github-token', {required: true})
     const msTeamsWebhookUri: string = core.getInput('ms-teams-webhook-uri', {
       required: true
     })
+    const timeout = core.getInput('timeout')
+      ? core.getInput('timeout')
+      : DEFAULT_TIMEOUT
+
+    if (isNaN(Number(timeout))) {
+      throw Error('Timeout should be a number')
+    }
 
     let defaultConfig = basicConfig.noStatus
 
@@ -93,20 +108,20 @@ async function run(): Promise<void> {
       timestamp
     )
 
-    console.log(messageCard)
+    const timeoutPromise = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        reject(new TimeoutError(`Timeout exceeded: ${timeout}ms`))
+      }, +timeout)
+    })
 
-    axios
-      .post(msTeamsWebhookUri, messageCard)
-      .then(function (response) {
-        console.log(response)
-        core.debug(response.data)
-      })
-      .catch(function (error) {
-        core.debug(error)
-      })
+    const webhook = axios.post(msTeamsWebhookUri, messageCard)
+
+    await Promise.race([timeoutPromise, webhook])
   } catch (error) {
-    console.log(error)
-    core.setFailed((error as any).message)
+    if (error instanceof TimeoutError) {
+      core.warning(error.message)
+      process.exit()
+    }
   }
 }
 
