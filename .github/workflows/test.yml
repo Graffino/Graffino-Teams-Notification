@@ -1,7 +1,7 @@
 name: graffino-teams-notification-test
 run-name: ${{ github.actor }} is performing a Graffino Teams Notification test build
 on:
-  repository_dispatch:
+  workflow_dispatch:
   pull_request:
   push:
     branches:
@@ -9,8 +9,8 @@ on:
       - "develop"
  
 jobs:
-  build:
-    runs-on: [self-hosted, graffino]
+  build-test:
+    runs-on: [self-hosted, graffino, nodejs]
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -34,19 +34,18 @@ jobs:
         if: success()
         run: |
           yarn run build
-  test:
-    runs-on: [self-hosted, graffino]
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ./
-      with: 
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
-        notification-summary: "Deployment Started 🚀"
-        timezone: Europe/Bucharest
-    - uses: ./
-      with: 
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
-        notification-summary: "Deployment Stopped 🥷🏼"
-        timezone: Europe/Bucharest
+
+      - name: Test Deployment
+        uses: ./
+        with: 
+          github-token: ${{ github.token }}
+          ms-teams-webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+          notification-summary: "Deployment Started 🚀"
+          timezone: Europe/Bucharest
+      - name: Test Deployment
+        uses: ./
+        with: 
+          github-token: ${{ github.token }}
+          ms-teams-webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+          notification-summary: "Deployment Stopped 🥷🏼"
+          timezone: Europe/Bucharest
