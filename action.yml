@@ -3,7 +3,7 @@ description: 'Send a custom notification message to a Microsoft Teams channel wi
 author: 'Graffino'
 branding:
   icon: message-circle
-  color: purple 
+  color: red 
 inputs:
   github-token:
     description: 'GitHub Token'
