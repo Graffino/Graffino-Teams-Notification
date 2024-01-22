@@ -41,7 +41,7 @@ jobs:
       - name: Build Frontend
         if: success()
         run: |
-          yarn run development
+          yarn run build
 
       - name: Test Deployment Start
         uses: ./
