@@ -3,7 +3,7 @@ description: 'Send a custom notification message to a Microsoft Teams channel wi
 author: 'Graffino'
 branding:
   icon: message-circle
-  color: purple 
+  color: red 
 inputs:
   github-token:
     description: 'GitHub Token'
@@ -14,11 +14,8 @@ inputs:
   notification-summary:
     description: 'Message to be sent to Microsoft Teams channel'
     required: true 
-  notification-color:
-    description: 'Color of notification header line'
-    required: true 
   timezone:
-    description: 'Timezone (ex. Bucharest/Romania)'
+    description: 'Timezone (ex. Europe/Bucharest)'
     required: false
   timeout:
     description: 'Period after which the action will timeout (in milliseconds) with an error if the notification is not sent'

@@ -1,6 +1,5 @@
 export function createMessageCard(
   notificationSummary: string,
-  notificationColor: string,
   commit: any,
   author: any,
   runNum: string,
@@ -21,7 +20,6 @@ export function createMessageCard(
     '@type': 'MessageCard',
     '@context': 'https://schema.org/extensions',
     summary: notificationSummary,
-    themeColor: notificationColor,
     title: notificationSummary,
     sections: [
       {

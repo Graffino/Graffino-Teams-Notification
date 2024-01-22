@@ -26,15 +26,12 @@ const escapeMarkdownTokens = (text: string) =>
 
 const basicConfig = {
   success: {
-    title: 'Workflow succedeed 🚀 🥷🏼',
-    color: '82f071'
+    title: 'Workflow succedeed 🚀🥷🏼'
   },
   failure: {
-    title: 'Workflow failed 😵🫠',
-    color: 'd91633'
+    title: 'Workflow failed 😵🫠'
   },
   noStatus: {
-    color: '0b93ff',
     title: 'GitHub Action Notification'
   }
 }
@@ -75,8 +72,6 @@ async function run(): Promise<void> {
 
     const notificationSummary =
       core.getInput('notification-summary') || defaultConfig.title
-    const notificationColor =
-      core.getInput('notification-color') || defaultConfig.color
     const timezone = core.getInput('timezone') || 'UTC'
 
     const timestamp = moment()
@@ -97,7 +92,6 @@ async function run(): Promise<void> {
 
     const messageCard = await createMessageCard(
       notificationSummary,
-      notificationColor,
       commit,
       author,
       runNum,
