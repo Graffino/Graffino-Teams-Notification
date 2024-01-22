@@ -28,7 +28,7 @@ jobs:
           ms-teams-webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
           notification-summary: Your custom notification message 
           notification-color: 17a2b8
-          timezone: Bucharest/Romania
+          timezone: Europe/Bucharest
 ```
 
 3. Make it your own with the following configurations.

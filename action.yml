@@ -18,7 +18,7 @@ inputs:
     description: 'Color of notification header line'
     required: true 
   timezone:
-    description: 'Timezone (ex. Bucharest/Romania)'
+    description: 'Timezone (ex. Europe/Bucharest)'
     required: false
   timeout:
     description: 'Period after which the action will timeout (in milliseconds) with an error if the notification is not sent'
