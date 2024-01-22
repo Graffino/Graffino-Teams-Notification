@@ -54,15 +54,12 @@ const escapeMarkdownTokens = (text) => text
     .replace(/>/g, '\\>');
 const basicConfig = {
     success: {
-        title: 'Workflow succedeed 🚀 🥷🏼',
-        color: '82f071'
+        title: 'Workflow succedeed 🚀🥷🏼',
     },
     failure: {
         title: 'Workflow failed 😵🫠',
-        color: 'd91633'
     },
     noStatus: {
-        color: '0b93ff',
         title: 'GitHub Action Notification'
     }
 };
@@ -96,7 +93,6 @@ async function run() {
             console.log('Job was not provided');
         }
         const notificationSummary = core.getInput('notification-summary') || defaultConfig.title;
-        const notificationColor = core.getInput('notification-color') || defaultConfig.color;
         const timezone = core.getInput('timezone') || 'UTC';
         const timestamp = (0, moment_timezone_1.default)()
             .tz(timezone)
@@ -111,7 +107,7 @@ async function run() {
         const octokit = new rest_1.Octokit({ auth: `token ${githubToken}` });
         const commit = await octokit.repos.getCommit(params);
         const author = commit.data.author;
-        const messageCard = await (0, message_card_1.createMessageCard)(notificationSummary, notificationColor, commit, author, runNum, runId, repoName, sha, repoUrl, timestamp);
+        const messageCard = await (0, message_card_1.createMessageCard)(notificationSummary, commit, author, runNum, runId, repoName, sha, repoUrl, timestamp);
         const timeoutPromise = new Promise((resolve, reject) => {
             setTimeout(() => {
                 reject(new TimeoutError(`Timeout exceeded: ${timeout}ms`));
@@ -139,7 +135,7 @@ run();
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createMessageCard = void 0;
-function createMessageCard(notificationSummary, notificationColor, commit, author, runNum, runId, repoName, sha, repoUrl, timestamp) {
+function createMessageCard(notificationSummary, commit, author, runNum, runId, repoName, sha, repoUrl, timestamp) {
     let avatar_url = 'https://www.gravatar.com/avatar/05b6d8cc7c662bf81e01b39254f88a48?d=identicon';
     if (author) {
         if (author.avatar_url) {
@@ -150,7 +146,6 @@ function createMessageCard(notificationSummary, notificationColor, commit, autho
         '@type': 'MessageCard',
         '@context': 'https://schema.org/extensions',
         summary: notificationSummary,
-        themeColor: notificationColor,
         title: notificationSummary,
         sections: [
             {

@@ -14,9 +14,6 @@ inputs:
   notification-summary:
     description: 'Message to be sent to Microsoft Teams channel'
     required: true 
-  notification-color:
-    description: 'Color of notification header line'
-    required: true 
   timezone:
     description: 'Timezone (ex. Europe/Bucharest)'
     required: false
