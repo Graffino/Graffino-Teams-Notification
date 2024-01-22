@@ -1,25 +1,33 @@
 name: graffino-teams-notification-test
-run-name: ${{ github.actor }} is performing a Graffino Teams Notification test build
+run-name: ${{ github.actor }} is performing a Graffino Teams Notification test run
 on:
   workflow_dispatch:
-  pull_request:
   push:
     branches:
       - "master"
       - "develop"
- 
+
 jobs:
-  build-test:
-    runs-on: [self-hosted, graffino, nodejs]
+  deploy-integration:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         os: [ubuntu-latest]
         node: [18]
     steps:
+      - name: Workflow start - Microsoft Teams notification message sent
+        if: always()
+        uses: Graffino/Graffino-Teams-Notification@v2
+        with:
+          github-token: ${{ github.token }}
+          ms-teams-webhook-uri: ${{ secrets.TEAMS_WEBHOOK_UPDATES }}
+          timezone: Europe/Bucharest
+          notification-summary: "Test build start"
+
       - name: Checkout
         id: Checkout
-        uses: actions/checkout@v4
-  
+        uses: actions/checkout@master
+
       - uses: actions/cache@v3
         with:
           path: "**/node_modules"
@@ -33,19 +41,30 @@ jobs:
       - name: Build Frontend
         if: success()
         run: |
-          yarn run build
+          yarn run development
 
-      - name: Test Deployment
+      - name: Test Deployment Start
         uses: ./
         with: 
           github-token: ${{ github.token }}
           ms-teams-webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
           notification-summary: "Deployment Started 🚀"
           timezone: Europe/Bucharest
-      - name: Test Deployment
+
+      - name: Test Deployment End
         uses: ./
         with: 
           github-token: ${{ github.token }}
           ms-teams-webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
           notification-summary: "Deployment Stopped 🥷🏼"
           timezone: Europe/Bucharest
+
+      - name: Notify dedicated teams channel
+        if: always()
+        uses: Graffino/Graffino-Teams-Notification@v2
+        with:
+          github-token: ${{ github.token }}
+          ms-teams-webhook-uri: ${{ secrets.TEAMS_WEBHOOK_UPDATES }}
+          job: ${{ toJson(job) }}
+          timezone: Europe/Bucharest
+          notification-summary: "Integration run ${{ job.status }}"
