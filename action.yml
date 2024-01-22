@@ -18,8 +18,14 @@ inputs:
     description: 'Color of notification header line'
     required: true 
   timezone:
-    description: 'Timezone (ex. America/Denver)'
+    description: 'Timezone (ex. Bucharest/Romania)'
     required: false
+  timeout:
+    description: 'Period after which the action will timeout (in milliseconds) with an error if the notification is not sent'
+    required: false 
+  job:
+    description: 'The stringified job object, used to get the job status and display notification accordingly'
+    required: false 
 runs:
-  using: 'node12'
+  using: 'node20'
   main: 'dist/index.js'

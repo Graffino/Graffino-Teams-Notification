@@ -4,6 +4,16 @@ import axios from 'axios'
 import moment from 'moment-timezone'
 import {createMessageCard} from './message-card'
 
+enum JobStatus {
+  FAILURE = 'failure',
+  SUCCESS = 'success'
+}
+
+type Job = {
+  status: JobStatus
+}
+
+const DEFAULT_TIMEOUT = 5000
 const escapeMarkdownTokens = (text: string) =>
   text
     .replace(/\n\ {1,}/g, '\n ')
@@ -14,16 +24,59 @@ const escapeMarkdownTokens = (text: string) =>
     .replace(/-/g, '\\-')
     .replace(/>/g, '\\>')
 
+const basicConfig = {
+  success: {
+    title: 'Workflow succedeed 🚀 🥷🏼',
+    color: '82f071'
+  },
+  failure: {
+    title: 'Workflow failed 😵🫠',
+    color: 'd91633'
+  },
+  noStatus: {
+    color: '0b93ff',
+    title: 'GitHub Action Notification'
+  }
+}
+
+class TimeoutError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'TimeoutError'
+  }
+}
+
 async function run(): Promise<void> {
   try {
     const githubToken = core.getInput('github-token', {required: true})
     const msTeamsWebhookUri: string = core.getInput('ms-teams-webhook-uri', {
       required: true
     })
+    const timeout = core.getInput('timeout')
+      ? core.getInput('timeout')
+      : DEFAULT_TIMEOUT
+
+    if (isNaN(Number(timeout))) {
+      throw Error('Timeout should be a number')
+    }
+
+    let defaultConfig = basicConfig.noStatus
+
+    try {
+      const job = JSON.parse(core.getInput('job')) as Job
+
+      defaultConfig =
+        job.status == JobStatus.FAILURE
+          ? basicConfig.failure
+          : basicConfig.success
+    } catch (error) {
+      console.log('Job was not provided')
+    }
 
     const notificationSummary =
-      core.getInput('notification-summary') || 'GitHub Action Notification'
-    const notificationColor = core.getInput('notification-color') || '0b93ff'
+      core.getInput('notification-summary') || defaultConfig.title
+    const notificationColor =
+      core.getInput('notification-color') || defaultConfig.color
     const timezone = core.getInput('timezone') || 'UTC'
 
     const timestamp = moment()
@@ -55,20 +108,20 @@ async function run(): Promise<void> {
       timestamp
     )
 
-    console.log(messageCard)
+    const timeoutPromise = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        reject(new TimeoutError(`Timeout exceeded: ${timeout}ms`))
+      }, +timeout)
+    })
 
-    axios
-      .post(msTeamsWebhookUri, messageCard)
-      .then(function(response) {
-        console.log(response)
-        core.debug(response.data)
-      })
-      .catch(function(error) {
-        core.debug(error)
-      })
+    const webhook = axios.post(msTeamsWebhookUri, messageCard)
+
+    await Promise.race([timeoutPromise, webhook])
   } catch (error) {
-    console.log(error)
-    core.setFailed(error.message)
+    if (error instanceof TimeoutError) {
+      core.warning(error.message)
+      process.exit()
+    }
   }
 }
 
