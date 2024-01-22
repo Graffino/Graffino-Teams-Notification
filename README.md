@@ -27,7 +27,6 @@ jobs:
           github-token: ${{ github.token }} 
           ms-teams-webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
           notification-summary: Your custom notification message 
-          notification-color: 17a2b8
           timezone: Europe/Bucharest
 ```
 
