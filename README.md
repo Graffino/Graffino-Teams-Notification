@@ -26,7 +26,7 @@ jobs:
         with:
           github-token: ${{ github.token }} 
           ms-teams-webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
-          notification-summary: Your custom notification message 
+          notification-summary: "Your custom notification message including emoji 🚀"
           timezone: Europe/Bucharest
 ```
 
