@@ -1,6 +1,6 @@
-name: 'Microsoft Teams Notification'
+name: 'Graffino Teams Notification'
 description: 'Send a custom notification message to a Microsoft Teams channel with GitHub repo details'
-author: 'jdcargile'
+author: 'Graffino'
 branding:
   icon: message-circle
   color: purple 
